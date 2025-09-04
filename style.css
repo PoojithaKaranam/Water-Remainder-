@@ -1,0 +1,457 @@
+/* ===========================================
+   WATER REMINDER APP - CSS STYLES
+   =========================================== */
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Use the specific background image URL */
+    background-image: url('https://thumbs.dreamstime.com/z/water-conservation-reminder-dripping-faucet-vibrant-artwork-droplets-hang-each-encapsulating-miniature-scene-281546570.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Main app container */
+.app-container {
+    background: none;
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Top accent line */
+.app-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: none;
+}
+
+/* Header styles */
+.app-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.water-icon {
+    font-size: 2.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.subtitle {
+    color:white;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Progress section */
+.progress-section {
+    margin-bottom: 2rem;
+}
+
+.glasses-count {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2980b9;
+    margin-bottom: 0.5rem;
+    animation: pulse 2s infinite;
+}
+
+.glasses-label {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Progress bar styles */
+.progress-container {
+    width: 100%;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 50px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 50px;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar.complete {
+    background: linear-gradient(90deg, #56ab2f 0%, #a8e6cf 100%);
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.progress-percentage {
+    color:white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Buttons */
+.add-glass-btn {
+    background: none;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.add-glass-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.add-glass-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Controls section */
+.controls-section {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.reminder-controls {
+    background: none;
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.reminder-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.reminder-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.reminder-input {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+    border: 2px solid none;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.reminder-input:focus {
+    outline: none;
+    border-color: none;
+}
+
+.reminder-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.reminder-btn:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+}
+
+.reminder-btn.stop {
+    background: #e74c3c;
+}
+
+.reminder-btn.stop:hover {
+    background: #c0392b;
+}
+
+.reminder-status {
+    color: white; /* Changed from #7f8c8d to white */
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.reminder-status.active {
+    color: white; /* Changed from #27ae60 to white */
+    font-weight: 600;
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ffa726);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+/* Motivational messages */
+.motivation-message {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1rem;
+    border-radius: 15px;
+    margin: 1rem 0;
+    font-weight: 500;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.motivation-message.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: #2c3e50;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #4facfe;
+    z-index: 1000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Sound Controls */
+.sound-controls {
+    background: none;
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    margin-top: 1rem;
+}
+
+.sound-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.sound-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.sound-label, .volume-label {
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #2196F3;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* Volume Slider */
+.volume-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.volume-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: #d3d3d3;
+    outline: none;
+    border-radius: 4px;
+    transition: opacity .2s;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2196F3;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2196F3;
+    cursor: pointer;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .app-container {
+        margin: 10px;
+        padding: 1.5rem;
+    }
+    
+    .app-title {
+        font-size: 1.5rem;
+    }
+    
+    .glasses-count {
+        font-size: 2.5rem;
+    }
+    
+    .reminder-input-group {
+        flex-direction: column;
+    }
+    
+    .reminder-input {
+        min-width: unset;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        transform: translateY(-100px);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+}

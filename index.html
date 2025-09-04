@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydro Tracker - Water Reminder App</title>
+    <!-- Add these lines for PWA support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6e78ff">
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <h1 class="app-title">
+            <span class="water-icon">💧</span>
+            Hydro Tracker
+        </h1>
+        <p class="subtitle">Stay hydrated, stay healthy!</p>
+        
+        <div class="progress-section">
+            <div class="glasses-count" id="glassesCount">0</div>
+            <div class="glasses-label">out of 8 glasses today</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-percentage" id="progressPercentage">0% Complete</div>
+        </div>
+        
+        <button class="add-glass-btn" id="addGlassBtn" onclick="addGlass()">
+            +1 Glass 🥤
+        </button>
+        
+        <div id="motivationMessage" class="motivation-message"></div>
+        
+        <div class="controls-section">
+            <div class="reminder-controls">
+                <div class="reminder-title">💡 Set Reminders</div>
+                <div class="reminder-input-group">
+                    <input type="number" 
+                           class="reminder-input" 
+                           id="reminderInterval" 
+                           placeholder="Minutes" 
+                           min="1" 
+                           max="240" 
+                           value="30">
+                    <button class="reminder-btn" id="reminderBtn" onclick="toggleReminder()">
+                        Start
+                    </button>
+                </div>
+                <div class="reminder-status" id="reminderStatus">
+                    Set a custom reminder interval
+                </div>
+            </div>
+            
+            <!-- Sound Controls -->
+            <div class="sound-controls">
+                <div class="sound-title">🔊 Sound Controls</div>
+                <div class="sound-input-group">
+                    <label for="soundToggle" class="sound-label">Enable sounds</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="soundToggle" checked onclick="toggleSound()">
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+                <div class="volume-control">
+                    <label for="volumeSlider" class="volume-label">Volume</label>
+                    <input type="range" min="0" max="100" value="70" class="volume-slider" id="volumeSlider" oninput="updateVolume()">
+                </div>
+            </div>
+        </div>
+        
+        <button class="reset-btn" onclick="resetProgress()">
+            🔄 Reset Day
+        </button>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
