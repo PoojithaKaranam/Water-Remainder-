@@ -32,8 +32,25 @@ let goalCompletedSound;
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedProgress();
     updateDisplay();
-    requestNotificationPermission();
     initializeSounds();
+    
+    // Register service worker for better mobile notifications
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('Service Worker registered with scope:', registration.scope);
+                // Only request notification permission after service worker is ready
+                registration.ready.then(() => requestNotificationPermission());
+            })
+            .catch(error => {
+                console.error('Service Worker registration failed:', error);
+                // Fall back to regular notification permission
+                requestNotificationPermission();
+            });
+    } else {
+        // Browser doesn't support Service Workers
+        requestNotificationPermission();
+    }
 });
 
 /**
@@ -227,24 +244,73 @@ function stopReminder() {
  */
 function requestNotificationPermission() {
     if ('Notification' in window) {
+        // Add a clear user interaction for mobile browsers
+        const requestPermissionOnUserInteraction = () => {
+            // Remove the event listener to prevent multiple requests
+            document.removeEventListener('click', requestPermissionOnUserInteraction);
+            
+            // Request permission with a timeout to ensure UI has time to respond
+            setTimeout(() => {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('✅ Notifications Enabled', 'You will now receive reminders even when the app is not open.');
+                    } else {
+                        showNotification('❌ Notifications Disabled', 'You will only receive reminders when the app is open.');
+                    }
+                }).catch(error => {
+                    console.error('Error requesting notification permission:', error);
+                    showNotification('❌ Notification Error', 'Please check your browser settings to enable notifications manually.');
+                });
+            }, 1000);
+        };
+        
         // Check if permission isn't granted yet
         if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
             // Show a message to encourage users to enable notifications
             showNotification(
                 '🔔 Enable Notifications', 
-                'Please allow notifications to get reminders even when the app is in the background.'
+                'Tap anywhere on the screen to enable notifications for reminders.'
             );
             
-            // Request permission
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    showNotification('✅ Notifications Enabled', 'You will now receive reminders even when the app is not open.');
-                } else {
-                    showNotification('❌ Notifications Disabled', 'You will only receive reminders when the app is open.');
-                }
-            });
+            // Listen for user interaction (required for mobile browsers)
+            document.addEventListener('click', requestPermissionOnUserInteraction);
+            
+            // Also add a dedicated permission button for mobile users
+            addPermissionButton();
         }
     }
+}
+
+/**
+ * Add a temporary permission button for mobile users
+ */
+function addPermissionButton() {
+    // Create a button that's clearly visible for mobile users
+    const permButton = document.createElement('button');
+    permButton.innerText = '🔔 Enable Notifications';
+    permButton.className = 'permission-btn';
+    permButton.onclick = function() {
+        // Request permission on button click
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                showNotification('✅ Notifications Enabled', 'You will now receive reminders even when the app is not open.');
+            } else {
+                showNotification('❌ Notifications Disabled', 'You will only receive reminders when the app is open.');
+            }
+            // Remove the button after permission is decided
+            this.remove();
+        });
+    };
+    
+    // Add the button to the page
+    document.querySelector('.app-container').prepend(permButton);
+    
+    // Remove the button after 10 seconds if not clicked
+    setTimeout(() => {
+        if (document.body.contains(permButton)) {
+            permButton.remove();
+        }
+    }, 10000);
 }
 
 /**
@@ -426,23 +492,37 @@ function playSound(sound) {
     // Check if sound exists and browser supports audio
     if (sound && typeof sound.play === 'function') {
         // Reset the sound to the beginning (in case it was already playing)
-        sound.currentTime = 0;
-        
-        // Play the sound with error handling
-        sound.play().catch(error => {
-            console.log('Error playing sound:', error);
-            // Most likely due to user not interacting with page yet
-        });
-    }
-}
 
-// Add a volume control function
-function setVolume(level) {
-    // Ensure level is between 0 and 1
-    const volume = Math.min(Math.max(level, 0), 1);
-    
-    // Apply to all sounds
-    if (addGlassSound) addGlassSound.volume = volume;
-    if (reminderSound) reminderSound.volume = volume;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}        });            console.error('Service Worker registration failed:', error);        .catch(error => {        })            console.log('Service Worker registered with scope:', registration.scope);        .then(registration => {    navigator.serviceWorker.register('./sw.js')if ('serviceWorker' in navigator) {// Register the service worker}    if (goalCompletedSound) goalCompletedSound.volume = volume;    if (reminderSound) reminderSound.volume = volume;    if (addGlassSound) addGlassSound.volume = volume;    // Apply to all sounds        const volume = Math.min(Math.max(level, 0), 1);    // Ensure level is between 0 and 1function setVolume(level) {// Add a volume control function}    }        });            // Most likely due to user not interacting with page yet            console.log('Error playing sound:', error);        sound.play().catch(error => {        // Play the sound with error handling                sound.currentTime = 0;    if (reminderSound) reminderSound.volume = volume;
     if (goalCompletedSound) goalCompletedSound.volume = volume;
 }
