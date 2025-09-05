@@ -9,13 +9,14 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open HTML file",
-            "file": "${workspaceFolder}/index.html"
+            "file": "${workspaceFolder}/index.html",
+            "webRoot": "${workspaceFolder}"
         },
         {
-            "type": "chrome",
+            "type": "msedge",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8080",
+            "name": "Open in Edge",
+            "file": "${workspaceFolder}/index.html",
             "webRoot": "${workspaceFolder}"
         }
     ]

@@ -240,10 +240,13 @@ function stopReminder() {
 }
 
 /**
- * Request notification permission more proactively
+ * Request notification permission more proactively for mobile
  */
 function requestNotificationPermission() {
     if ('Notification' in window) {
+        // Mobile-specific detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
         // Add a clear user interaction for mobile browsers
         const requestPermissionOnUserInteraction = () => {
             // Remove the event listener to prevent multiple requests
@@ -254,63 +257,157 @@ function requestNotificationPermission() {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         showNotification('✅ Notifications Enabled', 'You will now receive reminders even when the app is not open.');
+                        
+                        // For mobile, send a test notification to confirm permissions
+                        if (isMobile && navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({
+                                type: 'ENABLE_NOTIFICATIONS'
+                            });
+                        }
                     } else {
                         showNotification('❌ Notifications Disabled', 'You will only receive reminders when the app is open.');
                     }
                 }).catch(error => {
                     console.error('Error requesting notification permission:', error);
-                    showNotification('❌ Notification Error', 'Please check your browser settings to enable notifications manually.');
+                    
+                    // On mobile, show instructions for enabling notifications manually
+                    if (isMobile) {
+                        showMobileNotificationInstructions();
+                    } else {
+                        showNotification('❌ Notification Error', 'Please check your browser settings to enable notifications manually.');
+                    }
                 });
             }, 1000);
         };
         
         // Check if permission isn't granted yet
         if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-            // Show a message to encourage users to enable notifications
-            showNotification(
-                '🔔 Enable Notifications', 
-                'Tap anywhere on the screen to enable notifications for reminders.'
-            );
+            // Show different messages for mobile vs desktop
+            if (isMobile) {
+                showNotification(
+                    '🔔 Enable Notifications', 
+                    'Tap the button below to enable reminder notifications'
+                );
+            } else {
+                showNotification(
+                    '🔔 Enable Notifications', 
+                    'Click anywhere to enable reminder notifications'
+                );
+            }
             
             // Listen for user interaction (required for mobile browsers)
             document.addEventListener('click', requestPermissionOnUserInteraction);
             
-            // Also add a dedicated permission button for mobile users
-            addPermissionButton();
+            // For mobile, always add a prominent permission button
+            if (isMobile) {
+                addMobilePermissionButton();
+            } else {
+                addPermissionButton();
+            }
         }
     }
 }
 
 /**
- * Add a temporary permission button for mobile users
+ * Add a more prominent permission button specifically for mobile
  */
-function addPermissionButton() {
+function addMobilePermissionButton() {
     // Create a button that's clearly visible for mobile users
     const permButton = document.createElement('button');
-    permButton.innerText = '🔔 Enable Notifications';
-    permButton.className = 'permission-btn';
-    permButton.onclick = function() {
+    permButton.innerText = '🔔 Tap to Enable Notifications';
+    permButton.className = 'permission-btn mobile';
+    permButton.onclick = function(e) {
+        e.stopPropagation(); // Prevent other click handlers
+        
         // Request permission on button click
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
                 showNotification('✅ Notifications Enabled', 'You will now receive reminders even when the app is not open.');
+                
+                // Send a test notification via service worker
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'ENABLE_NOTIFICATIONS'
+                    });
+                }
             } else {
                 showNotification('❌ Notifications Disabled', 'You will only receive reminders when the app is open.');
+                showMobileNotificationInstructions();
             }
             // Remove the button after permission is decided
+            this.remove();
+        }).catch(error => {
+            console.error('Error requesting permission:', error);
+            showMobileNotificationInstructions();
             this.remove();
         });
     };
     
-    // Add the button to the page
-    document.querySelector('.app-container').prepend(permButton);
+    // Add the button to the page in a very visible position
+    document.body.appendChild(permButton);
     
-    // Remove the button after 10 seconds if not clicked
+    // Keep the button visible longer on mobile
     setTimeout(() => {
         if (document.body.contains(permButton)) {
             permButton.remove();
         }
-    }, 10000);
+    }, 30000); // 30 seconds for mobile
+}
+
+/**
+ * Show instructions for enabling notifications on mobile devices
+ */
+function showMobileNotificationInstructions() {
+    // Create a modal with instructions
+    const modal = document.createElement('div');
+    modal.className = 'notification-instructions';
+    
+    // Detect device type for specific instructions
+    let instructions = '';
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        instructions = `
+            <h3>Enable Notifications on iOS:</h3>
+            <ol>
+                <li>Open Settings</li>
+                <li>Scroll down and tap Safari</li>
+                <li>Tap "Notifications"</li>
+                <li>Toggle "Allow Notifications" on</li>
+                <li>Return to this app and refresh</li>
+            </ol>
+        `;
+    } else if (/Android/i.test(navigator.userAgent)) {
+        instructions = `
+            <h3>Enable Notifications on Android:</h3>
+            <ol>
+                <li>Open Settings</li>
+                <li>Tap "Apps" or "Applications"</li>
+                <li>Find your browser (Chrome, etc.)</li>
+                <li>Tap "Notifications"</li>
+                <li>Enable notifications</li>
+                <li>Return to this app and refresh</li>
+            </ol>
+        `;
+    } else {
+        instructions = `
+            <h3>Enable Notifications:</h3>
+            <p>Please check your browser settings to enable notifications manually.</p>
+        `;
+    }
+    
+    modal.innerHTML = `
+        <div class="instructions-content">
+            <h2>📱 Notification Setup</h2>
+            ${instructions}
+            <button class="close-instructions">Got it</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add close functionality
+    modal.querySelector('.close-instructions').addEventListener('click', () => {
+        modal.remove();
+    });
 }
 
 /**
@@ -492,37 +589,31 @@ function playSound(sound) {
     // Check if sound exists and browser supports audio
     if (sound && typeof sound.play === 'function') {
         // Reset the sound to the beginning (in case it was already playing)
+        sound.currentTime = 0;
+        
+        // Play the sound with error handling
+        sound.play().catch(error => {
+            console.log('Error playing sound:', error);
+            // Most likely due to user not interacting with page yet
+        });
+    }
+}
 
+/**
+ * Create a water drop icon for browser notifications
+ */
+function createWaterDropIcon() {
+    // Return a data URL for a simple water drop icon
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMiIgZmlsbD0iIzRmYWNmZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPvCfkocnPC90ZXh0Pjwvc3ZnPg==';
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}        });            console.error('Service Worker registration failed:', error);        .catch(error => {        })            console.log('Service Worker registered with scope:', registration.scope);        .then(registration => {    navigator.serviceWorker.register('./sw.js')if ('serviceWorker' in navigator) {// Register the service worker}    if (goalCompletedSound) goalCompletedSound.volume = volume;    if (reminderSound) reminderSound.volume = volume;    if (addGlassSound) addGlassSound.volume = volume;    // Apply to all sounds        const volume = Math.min(Math.max(level, 0), 1);    // Ensure level is between 0 and 1function setVolume(level) {// Add a volume control function}    }        });            // Most likely due to user not interacting with page yet            console.log('Error playing sound:', error);        sound.play().catch(error => {        // Play the sound with error handling                sound.currentTime = 0;    if (reminderSound) reminderSound.volume = volume;
+// Add a volume control function
+function setVolume(level) {
+    // Ensure level is between 0 and 1
+    const volume = Math.min(Math.max(level, 0), 1);
+    
+    // Apply to all sounds
+    if (addGlassSound) addGlassSound.volume = volume;
+    if (reminderSound) reminderSound.volume = volume;
     if (goalCompletedSound) goalCompletedSound.volume = volume;
 }

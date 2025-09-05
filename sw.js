@@ -86,17 +86,17 @@ self.addEventListener('push', event => {
   );
 });
 
-// Notification click event
+// Enhanced notification click handler for mobile
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   
-  // Open the app when notification is clicked
+  // Open the app when notification is clicked - enhanced for mobile
   event.waitUntil(
-    clients.matchAll({type: 'window'})
+    clients.matchAll({type: 'window', includeUncontrolled: true})
       .then(windowClients => {
-        // Check if there is already a window open
+        // Check if there is already a window/tab open
         for (let client of windowClients) {
-          if (client.url === '/' && 'focus' in client) {
+          if ('focus' in client) {
             return client.focus();
           }
         }
@@ -107,4 +107,17 @@ self.addEventListener('notificationclick', event => {
         }
       })
   );
+});
+
+// Add mobile-specific event listener for visibility changes
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'ENABLE_NOTIFICATIONS') {
+    // This event is triggered when the user explicitly requests notifications
+    self.registration.showNotification('Hydro Tracker Ready', {
+      body: 'Notification permissions are now enabled!',
+      icon: './water-icon.png',
+      badge: './water-icon.png',
+      tag: 'notification-test'
+    });
+  }
 });

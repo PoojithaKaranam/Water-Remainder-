@@ -1,9 +1,17 @@
 {
-    "liveServer.settings.port": 5502,
+    "liveServer.settings.port": 5500,
     "liveServer.settings.root": "/",
     "liveServer.settings.CustomBrowser": "chrome",
     "liveServer.settings.donotShowInfoMsg": true,
     "liveServer.settings.donotVerifyTags": true,
+    "liveServer.settings.https": {
+        "enable": false,
+        "cert": "",
+        "key": "",
+        "passphrase": ""
+    },
+    "liveServer.settings.host": "127.0.0.1",
+    "liveServer.settings.useLocalIp": false,
     "liveServer.settings.ignoreFiles": [
         ".vscode/**",
         "**/*.scss",
